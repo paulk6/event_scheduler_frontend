@@ -1,6 +1,7 @@
 from app import app, db
 from flask import request, jsonify
 from app.models import Event
+from app.email import sendEmail
 
 
 
@@ -12,7 +13,7 @@ def index():
 
 @app.route('/api/save', methods=['POST'])
 def save():
-    try:
+    # try:
         # get headers first
         # this has nothing to do with the normal kind of headers
         title = request.headers.get('title')
@@ -20,6 +21,9 @@ def save():
         month = request.headers.get('month')
         year = request.headers.get('year')
         notes = request.headers.get('notes')
+        email = request.headers.get('email')
+
+
 
         #  if any info is missing give back an error jsonified message
         if not day or not title or not month or not year or not notes:
@@ -32,9 +36,11 @@ def save():
         db.session.add(event)
         db.session.commit()
 
+        sendEmail(title, day, month, year, notes, email)
+
 
         return jsonify({ 'success' : 'Saved Event' })
-    except:
+    # except:
         return jsonify({ 'error' : 'Error #002: Could not save event.'})
 
 
